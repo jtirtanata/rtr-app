@@ -1,0 +1,46 @@
+<head>
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+</head>
+
+<body>
+
+  <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
+  <script>
+
+
+  $.ajax({
+         type: "POST",
+         contentType: "application/json; charset=utf-8",
+         url: "/data",
+         dataType: "json",
+         async: true,
+         data: "{\"cluster_no\": "+ 1+"}",
+         success: function (data) {
+           plot(JSON.parse(data["data"]));
+         },
+         error: function (result) {
+         }
+       })
+
+var layout = {
+  title: 'Smooth Contour Coloring',
+  xaxis: {domain: [80, 290]},
+  yaxis: {domain: [54, 79]},
+};
+function plot(data) {
+  var heatmap_data = [ {
+    z: data,
+    type: 'heatmap',
+    zsmooth: 'best',
+    connectgaps: true,
+    contours: {
+      coloring: 'YIOrRd'
+    }
+  }];
+  console.log(heatmap_data);
+  Plotly.newPlot('myDiv', heatmap_data, layout);
+}
+  </script>
+</body>
