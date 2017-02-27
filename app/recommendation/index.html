@@ -14,6 +14,26 @@
     padding: 50px;
   }
 
+  label {
+    text-transform: uppercase;
+    font-family: "Arial";
+    opacity: 0.5;
+    color: #684091;
+  }
+
+  button {
+    text-transform: uppercase;
+    font-family: "Roboto";
+  }
+
+  .input-boxes{
+    padding: 50px 10px;
+  }
+
+  .input-boxes h3{
+    color:#828785;
+  }
+
   #results {
     padding-top: 30px;
     padding-left: 40px;
@@ -33,27 +53,60 @@
 
   rect {
     stroke: #f2e0f6;
-    stroke-width: 3;
+    stroke-width: 5;
     fill: white;
+    rx: 25;
+    ry: 25;
   }
 
   rect.selected-input {
     fill: #f2e0f6;
   }
-
-
-
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>INSERT TITLE</h1>
-  <div id="input-squares">
+  <h1>RENT THE ROBOT</h1>
+
+  <div id="input-measurements" class="input-boxes">
+    <h3>body measurements</h3>
+    <div class="form-group  col-sm-2">
+      <label for="weight">Weight</label>
+      <input type="number" class="form-control body-input" id="weight" min="70" max="300" value="120">
+    </div>
+    <div class="form-group col-sm-2">
+      <label for="height">Height</label>
+      <input type="number" class="form-control body-input" id="height" min="30" max="100" value="50">
+    </div>
+    <div class="form-group col-sm-2">
+      <label for="age">Age</label>
+      <input type="number" class="form-control body-input" id="age" min="10" max="100" value="30">
+    </div>
+    <div class="form-group col-sm-2">
+      <label for="usually-wears">Usually Wears</label>
+      <input type="number" class="form-control body-input" id="usually-wears" min="0" max="24" value="4">
+    </div>
+    <div class="form-group col-sm-2">
+      <label for="bra">Bra size</label>
+      <input type="text" class="form-control body-input" id="bra" placeholder="34B">
+    </div>
+    <div class="form-group col-sm-2">
+      <label for="body-type">Body type</label>
+      <select class="form-control body-input" id="body-type">
+      </select>
+    </div>
   </div>
-  <button onclick="fetchResults()" type="button" class="btn btn-default btn-block">
-    Pick something for me
-  </button>
+  <div id="input-squares" class="input-boxes">
+  <h3>additional preferences</h3>
+  </div>
+  <div class='row'>
+    <div class="col-sm-offset-8 col-sm-4">
+      <button onclick="fetchResults()" type="button" class="btn btn-default">
+        Pick something for me
+      </button>
+    </div>
+  </div>
   <div id="results" class="col-sm-10 col-sm-offset-1" >
   </div>
 </div>
@@ -63,6 +116,30 @@
 var selected = "rgb(176, 207, 136)"
 var unselected = "rgb(224, 208, 227)";
 selected_data = [];
+
+/* fetching body types */
+fetchBodyTypes();
+
+function fetchBodyTypes() {
+  $.ajax({
+   type: "GET",
+   contentType: "application/json; charset=utf-8",
+   url: "/body_types",
+   dataType: "json",
+   async: true,
+   success: function (data) {
+     for (var i = 0; i < data.length; i++) {
+       $('select#body-type').append('<option value="' + data[i][1] + '">' + data[i][0] + '</option>');
+     }
+   },
+   error: function (err) {
+
+   }
+ });
+ }
+
+
+
 
 fetchInputLabels();
 
@@ -77,21 +154,21 @@ function fetchInputLabels() {
      for (var i = 0; i < data.length; i++) {
        selected_data.push(0)
      }
-     var width = 250;
+     var width = 200;
      var height = 50;
      var gap = 15;
      var padding = 50;
 
      var svg = d3.select("div#input-squares").append("svg")
-                .attr("width", (width + gap) * 4 + 50)
-                .attr("height",(height + gap) * 2);
+                .attr("width", (width + gap) * 4 + padding)
+                .attr("height",(height + gap) * 2 + padding);
      var g = svg
              .selectAll("g")
              .data(data)
              .enter()
              .append("g")
              .attr("transform", function(d, i) {
-               y = Math.floor(i/4) * (height + gap);
+               y = Math.floor(i/4) * (height + gap) + padding;
                x = i%4 * (width + gap) + padding;
                return "translate(" + x + "," + y+ ")";
              })
@@ -130,15 +207,29 @@ function fetchInputLabels() {
  });
 }
 function fetchResults() {
+  body_info = "";
+  body_inputs = $('.body-input');
+  for (var i = 0; i < body_inputs.length; i ++) {
+    id = body_inputs[i].getAttribute("id");
+    val =  $('#' + id).val();
+    if (i != 0 ) {
+      body_info += ", "
+    }
+    body_info += "\"" + id + "\" : \"" + val + "\""
+  }
+  input_data = "{\"preferences\": \"" + selected_data + "\", "
+        + body_info + "}";
+  console.log(input_data);
   $.ajax({
    type: "POST",
    contentType: "application/json; charset=utf-8",
    url: "/rec",
    dataType: "json",
    async: true,
-   data: "{\"inputs\": \"" + selected_data + "\"}",
+   data: input_data,
    success: function (data) {
-     displayResults(data);
+
+    //  displayResults(data);
    },
    error: function (err) {
      console.log(err);
