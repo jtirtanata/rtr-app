@@ -1,0 +1,80 @@
+
+body {
+  padding: 50px;
+}
+
+label {
+  text-transform: uppercase;
+  font-family: "Arial";
+  opacity: 0.5;
+  color: #684091;
+}
+
+button {
+  text-transform: uppercase;
+  font-family: "Roboto";
+}
+
+.modal-body img {
+  width: 100%;
+}
+
+#additional-info {
+  padding-top: 50px;
+}
+
+.input-boxes{
+  padding-bottom: 50px;
+}
+
+h3 {
+  color:#828785;
+  padding-top: 30px;
+}
+
+h3 a {
+  color:#828785;
+}
+
+h3 a:hover {
+  color:#828785;
+
+}
+
+#results{
+  padding-top: 30px;
+  padding-left: 40px;
+}
+
+#results-list {
+  list-style-type: none;
+}
+
+#results-list li {
+  float: left;
+}
+
+#results li img{
+  width: 150px;
+  border-radius: 25px;
+  border: 2px solid #dcc3e8;
+  margin: 5px;
+}
+
+text.label {
+  font-size: 12px;
+  font-family: 'Roboto Condensed', sans-serif;
+  fill: #6f6d6c;
+}
+
+rect {
+  stroke: #f2e0f6;
+  stroke-width: 5;
+  fill: white;
+  rx: 25;
+  ry: 25;
+}
+
+rect.selected-input {
+  fill: #f2e0f6;
+}

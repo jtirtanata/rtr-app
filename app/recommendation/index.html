@@ -1,76 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Bootstrap Example</title>
+  <title>RTR | Robot</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="js/main.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Abel|Karla|Roboto|Roboto+Condensed" rel="stylesheet">
-  <style>
-  body {
-    padding: 50px;
-  }
-
-  label {
-    text-transform: uppercase;
-    font-family: "Arial";
-    opacity: 0.5;
-    color: #684091;
-  }
-
-  button {
-    text-transform: uppercase;
-    font-family: "Roboto";
-  }
-
-  .input-boxes{
-    padding: 50px 10px;
-  }
-
-  .input-boxes h3{
-    color:#828785;
-  }
-
-  #results {
-    padding-top: 30px;
-    padding-left: 40px;
-  }
-  #results img{
-    width: 200px;
-    border-radius: 25px;
-    border: 2px solid #dcc3e8;
-    margin: 5px;
-  }
-
-  text.label {
-    font-size: 12px;
-    font-family: 'Roboto Condensed', sans-serif;
-    fill: #6f6d6c;
-  }
-
-  rect {
-    stroke: #f2e0f6;
-    stroke-width: 5;
-    fill: white;
-    rx: 25;
-    ry: 25;
-  }
-
-  rect.selected-input {
-    fill: #f2e0f6;
-  }
-  </style>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
 <div class="container">
-  <h1>RENT THE ROBOT</h1>
+  <h1>RENT THE ROBOTWAY</h1>
 
+  <h3><a onclick="collapseMeasurements();" >body measurements</a></h3>
   <div id="input-measurements" class="input-boxes">
-    <h3>body measurements</h3>
     <div class="form-group  col-sm-2">
       <label for="weight">Weight</label>
       <input type="number" class="form-control body-input" id="weight" min="70" max="300" value="120">
@@ -97,8 +45,8 @@
       </select>
     </div>
   </div>
-  <div id="input-squares" class="input-boxes">
   <h3>additional preferences</h3>
+  <div id="input-squares" class="input-boxes">
   </div>
   <div class='row'>
     <div class="col-sm-offset-8 col-sm-4">
@@ -107,144 +55,45 @@
       </button>
     </div>
   </div>
-  <div id="results" class="col-sm-10 col-sm-offset-1" >
+  <div id="results" class="col-sm-10 col-sm-offset-1 row" >
+    <ul id="results-list">
+
+    </ul>
   </div>
+  <div id="details" class="row col-sm-6 col-sm-offset-3">
+    <!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" id="dress-title">Hard Rock Sheath</h4>
+      </div>
+      <div class="modal-body col-sm-6 col-sm-offset-1">
+        <img id="big-img-link" src="https://pc-ap.renttherunway.com/productimages/nomodel/1080x/39/NM268.jpg" />
+      </div>
+      <div class="col-sm-5" id="additional-info">
+        <label>Designer</label>
+        <p id="designer">Cut 25</p>
+        <h4>Potential Issues</h4>
+        <ul id="issues-list">
+        </ul>
+        <a id="rtr-link" href="https://www.renttherunway.com/shop/designers/cut_25/hard_rock_sheath">Rent it now</a>
+
+      </div>
+      <div class="modal-footer">
+        <div class="col-sm-12" >
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+  </div>
+
 </div>
 
 </body>
-<script>
-var selected = "rgb(176, 207, 136)"
-var unselected = "rgb(224, 208, 227)";
-selected_data = [];
-
-/* fetching body types */
-fetchBodyTypes();
-
-function fetchBodyTypes() {
-  $.ajax({
-   type: "GET",
-   contentType: "application/json; charset=utf-8",
-   url: "/body_types",
-   dataType: "json",
-   async: true,
-   success: function (data) {
-     for (var i = 0; i < data.length; i++) {
-       $('select#body-type').append('<option value="' + data[i][1] + '">' + data[i][0] + '</option>');
-     }
-   },
-   error: function (err) {
-
-   }
- });
- }
-
-
-
-
-fetchInputLabels();
-
-function fetchInputLabels() {
-  $.ajax({
-   type: "GET",
-   contentType: "application/json; charset=utf-8",
-   url: "/labels",
-   dataType: "json",
-   async: true,
-   success: function (data) {
-     for (var i = 0; i < data.length; i++) {
-       selected_data.push(0)
-     }
-     var width = 200;
-     var height = 50;
-     var gap = 15;
-     var padding = 50;
-
-     var svg = d3.select("div#input-squares").append("svg")
-                .attr("width", (width + gap) * 4 + padding)
-                .attr("height",(height + gap) * 2 + padding);
-     var g = svg
-             .selectAll("g")
-             .data(data)
-             .enter()
-             .append("g")
-             .attr("transform", function(d, i) {
-               y = Math.floor(i/4) * (height + gap) + padding;
-               x = i%4 * (width + gap) + padding;
-               return "translate(" + x + "," + y+ ")";
-             })
-             .attr("index", function(d, i) {
-               return i;
-             })
-             .attr("selected", 0)
-             .on("click", function() {
-               var ind = this.getAttribute("index");
-               var isSelected = selected_data[ind] == 1;
-               if (isSelected){
-                 d3.select(this).select('rect')
-                   .classed("selected-input", false);
-                 selected_data[ind] = 0;
-               } else {
-                 d3.select(this).select('rect')
-                  .classed("selected-input", true);
-                 selected_data[ind] = 1;
-               }
-             });
-
-     g.append("rect").attr("width", width)
-       .attr("height", height)
-       .text(function(d) {return d;})
-       .classed("selected-input", false);
-
-     g.append("text")
-       .attr("class", "label")
-       .attr("y", function(d, i) { return height/2 + 5; })
-       .attr("x", function(d, i) { return 15; })
-       .text(function(d) { return d; });
-   },
-   error: function (err) {
-     console.log(err);
-   }
- });
-}
-function fetchResults() {
-  body_info = "";
-  body_inputs = $('.body-input');
-  for (var i = 0; i < body_inputs.length; i ++) {
-    id = body_inputs[i].getAttribute("id");
-    val =  $('#' + id).val();
-    if (i != 0 ) {
-      body_info += ", "
-    }
-    body_info += "\"" + id + "\" : \"" + val + "\""
-  }
-  input_data = "{\"preferences\": \"" + selected_data + "\", "
-        + body_info + "}";
-  console.log(input_data);
-  $.ajax({
-   type: "POST",
-   contentType: "application/json; charset=utf-8",
-   url: "/rec",
-   dataType: "json",
-   async: true,
-   data: input_data,
-   success: function (data) {
-
-    //  displayResults(data);
-   },
-   error: function (err) {
-     console.log(err);
-   }
- });
-}
-result_holder = document.getElementById('results');
-function displayResults(data){
-  img = data['imgs'];
-  for (var i = 0; i < img.length; i++) {
-    img_el = document.createElement('img');
-    img_el.src = img[i];
-    result_holder.append(img_el);
-  }
-}
-
-</script>
 </html>
